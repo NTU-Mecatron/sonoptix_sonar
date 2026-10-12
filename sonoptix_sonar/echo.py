@@ -105,7 +105,7 @@ class EchoNode(Node):
             self.get_logger().error(f"Failed to set stream type: {e}")
 
         # Give the hardware a moment to spin up the RTSP server
-        time.sleep(2.0)
+        time.sleep(5.0)
 
         # Initialize CV bridge and video capture
         self.br = CvBridge()
@@ -182,19 +182,19 @@ class EchoNode(Node):
         """Helper to sync class attributes with the physical sonar via API."""
         state = 'on' if self.power_state else 'off'
         payload = {
-            "power_state": state,
-            "range": self.range,
+            "enable": state,
+            "sonar_range": self.range,
             "tx_mode": self.tx_mode
         }
         try:
-            requests.put(self.api_url + '/transceiver', json=payload, timeout=2.0)
+            requests.put(self.api_url + '/transponder', json=payload, timeout=2.0)
         except requests.exceptions.RequestException as e:
             self.get_logger().error(f"Failed to update sonar settings: {e}")
 
     def shutdown_sonar(self):
-        """Disables the transceiver on exit."""
+        """Disables the transponder on exit."""
         try:
-            requests.put(self.api_url + '/transceiver', json={"power_state": 'off'}, timeout=2.0)
+            requests.put(self.api_url + '/transponder', json={"enable": 'off'}, timeout=2.0)
             self.get_logger().info('Transceiver disabled')
         except:
             pass
